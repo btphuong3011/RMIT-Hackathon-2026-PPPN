@@ -1,0 +1,4 @@
+# Prompt dùng để brainstorm ý tưởng game. Dán lại các prompt THẬT bạn đã dùng.
+# Ví dụ:
+Gợi ý 5 ý tưởng game web 2D đơn giản về một vấn đề xã hội ở Việt Nam, chơi được bằng chuột, phù hợp làm trong 1 ngày.
+Trong các ý tưởng trên, ý nào gắn tốt nhất với chủ đề an toàn thông tin? Giải thích cơ chế chơi gắn với thông điệp.

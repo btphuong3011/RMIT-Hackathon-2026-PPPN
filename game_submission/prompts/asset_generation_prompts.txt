@@ -1,0 +1,4 @@
+# Prompt dùng để sinh asset (hình, âm thanh, nội dung). Dán lại prompt THẬT.
+# Ví dụ:
+Viết 10 tin nhắn mẫu tiếng Việt: 5 tin lừa đảo thường gặp và 5 tin an toàn, kèm giải thích ngắn dấu hiệu từng tin.
+Tạo một biểu tượng khiên đơn giản bằng emoji/SVG hợp với game cảnh giác lừa đảo.

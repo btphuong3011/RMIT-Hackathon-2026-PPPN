@@ -1,0 +1,4 @@
+# Prompt dùng để sửa lỗi, tinh chỉnh. Dán lại prompt THẬT.
+# Ví dụ:
+Game bị lỗi: hết giờ nhưng vẫn bấm được nút. Sửa để sau khi trả lời hoặc hết giờ thì khóa nút.
+Làm giao diện responsive để chơi tốt trên màn hình điện thoại.

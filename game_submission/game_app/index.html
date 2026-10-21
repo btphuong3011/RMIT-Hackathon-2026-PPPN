@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Người Gác Tin Nhắn</title>
+<style>
+  :root{
+    --bg:#0f1420; --panel:#1a2234; --panel2:#222d44; --line:#2d3a56;
+    --fg:#eaf0fb; --muted:#93a1c0; --accent:#39b3f0; --safe:#2fbf71; --scam:#f0564a;
+    --font:system-ui,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:var(--font);background:var(--bg);color:var(--fg);
+    display:flex;align-items:center;justify-content:center;
+    padding:max(14px,env(safe-area-inset-left)) ;overflow:hidden}
+  #app{width:min(460px,100%);height:min(760px,100%);background:var(--panel);
+    border:1px solid var(--line);border-radius:20px;position:relative;overflow:hidden;
+    display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+  .screen{position:absolute;inset:0;display:flex;flex-direction:column;padding:22px;
+    opacity:0;pointer-events:none;transition:opacity .25s}
+  .screen.active{opacity:1;pointer-events:auto}
+  h1{font-size:1.9rem;line-height:1.1;letter-spacing:-.01em}
+  .tag{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);font-weight:700}
+  p{color:var(--muted);line-height:1.6;margin:.5rem 0}
+  button{font-family:var(--font);cursor:pointer;border:none;border-radius:12px;font-weight:700;font-size:1rem}
+  .btn-primary{background:var(--accent);color:#06121c;padding:15px;width:100%}
+  .btn-ghost{background:var(--panel2);color:var(--fg);padding:13px;width:100%;border:1px solid var(--line)}
+
+  /* ---- menu ---- */
+  #menu{justify-content:center;gap:10px;text-align:center}
+  #menu .logo{font-size:3rem;margin-bottom:.3rem}
+  #menu .how{background:var(--panel2);border:1px solid var(--line);border-radius:14px;
+    padding:14px;text-align:left;margin:14px 0}
+  #menu .how b{color:var(--fg)}
+
+  /* ---- play ---- */
+  #play{gap:0}
+  .hud{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+  .hud .chip{background:var(--panel2);border:1px solid var(--line);border-radius:999px;
+    padding:6px 12px;font-size:.85rem;font-weight:700}
+  .lives{color:var(--scam)}
+  .timebar{height:6px;background:var(--panel2);border-radius:3px;overflow:hidden;margin-bottom:16px}
+  .timebar>div{height:100%;background:var(--accent);width:100%;transition:width .1s linear}
+  .msgcard{flex:1;background:var(--panel2);border:1px solid var(--line);border-radius:16px;
+    padding:18px;display:flex;flex-direction:column;min-height:0}
+  .sender{display:flex;align-items:center;gap:10px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+  .avatar{width:40px;height:40px;border-radius:50%;background:var(--accent);color:#06121c;
+    display:grid;place-items:center;font-weight:800;font-size:1.1rem;flex:none}
+  .sender .name{font-weight:700}.sender .num{font-size:.78rem;color:var(--muted)}
+  .msgbody{flex:1;overflow-y:auto;padding:14px 2px;font-size:1.02rem;line-height:1.55;white-space:pre-wrap}
+  .choices{display:flex;gap:10px;margin-top:14px}
+  .choices button{flex:1;padding:16px}
+  .b-safe{background:var(--safe);color:#05210f}
+  .b-scam{background:var(--scam);color:#2a0905}
+  .feedback{position:absolute;inset:0;background:rgba(10,14,22,.93);backdrop-filter:blur(4px);
+    display:none;flex-direction:column;justify-content:center;padding:28px;text-align:center;gap:8px;z-index:5}
+  .feedback.show{display:flex}
+  .verdict{font-size:1.5rem;font-weight:800}
+  .verdict.ok{color:var(--safe)}.verdict.bad{color:var(--scam)}
+  .why{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:16px;text-align:left}
+  .why b{color:var(--accent)}
+
+  /* ---- over ---- */
+  #over{justify-content:center;text-align:center;gap:6px}
+  #over .score{font-size:3.4rem;font-weight:800;color:var(--accent)}
+  #over .rank{font-size:1.1rem;font-weight:700;margin-bottom:6px}
+  .stat{display:flex;justify-content:space-between;background:var(--panel2);
+    border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:4px 0;font-size:.92rem}
+  @media(max-height:680px){#app{border-radius:0}h1{font-size:1.5rem}#menu .logo{font-size:2.2rem}}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- MENU -->
+  <section id="menu" class="screen active">
+    <div class="logo">🛡️</div>
+    <span class="tag">Trò chơi nâng cao cảnh giác</span>
+    <h1>Người Gác<br>Tin Nhắn</h1>
+    <p>Mỗi năm người Việt mất hàng nghìn tỉ đồng vì lừa đảo qua tin nhắn. Bạn là người gác cổng: đọc nhanh và quyết định tin nào <b style="color:var(--safe)">AN TOÀN</b>, tin nào <b style="color:var(--scam)">LỪA ĐẢO</b>.</p>
+    <div class="how">
+      <p style="margin:0"><b>Cách chơi</b></p>
+      <p style="margin:.3rem 0 0">• Mỗi tin có vài giây để quyết định.<br>• Đúng được điểm, sai mất một mạng.<br>• Hết 3 mạng là thua. Sau mỗi tin có giải thích dấu hiệu.</p>
+    </div>
+    <button class="btn-primary" id="startBtn">Bắt đầu</button>
+  </section>
+
+  <!-- PLAY -->
+  <section id="play" class="screen">
+    <div class="hud">
+      <span class="chip">Điểm <b id="score">0</b></span>
+      <span class="chip">Tin <b id="progress">1</b></span>
+      <span class="chip lives" id="lives">❤️❤️❤️</span>
+    </div>
+    <div class="timebar"><div id="timefill"></div></div>
+    <div class="msgcard">
+      <div class="sender">
+        <div class="avatar" id="avatar">?</div>
+        <div><div class="name" id="sname">—</div><div class="num" id="snum">—</div></div>
+      </div>
+      <div class="msgbody" id="mbody">—</div>
+    </div>
+    <div class="choices">
+      <button class="b-safe" data-ans="safe">✅ An toàn</button>
+      <button class="b-scam" data-ans="scam">🚨 Lừa đảo</button>
+    </div>
+    <div class="feedback" id="feedback">
+      <div class="verdict" id="verdict">—</div>
+      <div class="why" id="why">—</div>
+      <button class="btn-primary" id="nextBtn">Tiếp theo</button>
+    </div>
+  </section>
+
+  <!-- GAME OVER -->
+  <section id="over" class="screen">
+    <span class="tag">Kết thúc</span>
+    <div class="score" id="finalScore">0</div>
+    <div class="rank" id="rank">—</div>
+    <div style="width:100%;margin:10px 0">
+      <div class="stat"><span>Trả lời đúng</span><b id="correctCount">0</b></div>
+      <div class="stat"><span>Tỉ lệ chính xác</span><b id="accuracy">0%</b></div>
+    </div>
+    <p id="tip">—</p>
+    <button class="btn-primary" id="againBtn">Chơi lại</button>
+    <button class="btn-ghost" id="homeBtn">Về menu</button>
+  </section>
+
+</div>
+
+<script>
+// ===== Dữ liệu tin nhắn (thay/bổ sung tự do; asset có thể nhờ LLM sinh thêm) =====
+// isScam: true = lừa đảo. why: giải thích dấu hiệu để người chơi học.
+const MESSAGES = [
+  {name:"Ngân hàng VCB", num:"+84 90 xxx 1234", scam:true,
+   text:"Tài khoản của bạn bị khóa do đăng nhập bất thường. Vui lòng xác minh trong 2 giờ tại: vcb-verify-login.com/secure",
+   why:"Ngân hàng không bao giờ gửi link lạ để 'xác minh'. Tên miền giả (vcb-verify-login.com), tạo cảm giác gấp gáp."},
+  {name:"Mẹ", num:"Danh bạ", scam:false,
+   text:"Con ơi tối nay về ăn cơm không? Mẹ nấu canh chua cá lóc.",
+   why:"Người quen trong danh bạ, nội dung đời thường, không xin tiền hay thông tin, không có link."},
+  {name:"Shopee", num:"Shopee", scam:false,
+   text:"Đơn hàng SPX của bạn đang được giao, dự kiến hôm nay. Theo dõi trong ứng dụng Shopee.",
+   why:"Hướng dẫn mở chính ứng dụng, không gửi link lạ, không yêu cầu mật khẩu hay OTP."},
+  {name:"Trúng thưởng", num:"+1 909 xxx 882", scam:true,
+   text:"CHUC MUNG! So dien thoai cua ban da trung xe SH 2025. Nhan giai lien he zalo 0388xxxxxx va dong phi 2.000.000d.",
+   why:"Trúng thưởng vô cớ + yêu cầu đóng phí trước = lừa đảo kinh điển. Số lạ, viết không dấu, sai chính tả."},
+  {name:"Cục Thuế", num:"+84 28 xxx 777", scam:true,
+   text:"Ban dang no thue. Neu khong nop trong hom nay se bi khoi to. Bam vao day de nop: thue-online-gov.net",
+   why:"Cơ quan nhà nước không dọa 'khởi tố' qua SMS hay bắt nộp tiền gấp qua link. Tên miền .net giả mạo."},
+  {name:"Anh Dũng", num:"Danh bạ", scam:false,
+   text:"Ê mai họp nhóm đồ án mấy giờ vậy? Gửi lại link Meet giúp t với.",
+   why:"Bạn bè trong danh bạ, ngữ cảnh quen thuộc, xin link Meet của chính nhóm mình chứ không dẫn ra trang lạ."},
+  {name:"Giao hàng J&T", num:"+84 77 xxx 090", scam:true,
+   text:"Kien hang cua ban khong giao duoc do sai dia chi. Cap nhat tai: jt-caphatdonhang.com keo bi hoan tra.",
+   why:"Dấu hiệu: link lạ bắt 'cập nhật địa chỉ', tạo áp lực sợ mất hàng. Hãng giao hàng thật dùng app hoặc tổng đài."},
+  {name:"Zalo - Người lạ", num:"+84 83 xxx 445", scam:true,
+   text:"Chào em, anh là nhà tuyển dụng. Việc nhẹ lương cao, làm tại nhà 500k-2tr/ngày, chỉ cần cọc 300k để nhận đơn.",
+   why:"'Việc nhẹ lương cao' + yêu cầu đặt cọc = bẫy tuyển dụng. Người lạ, lương phi thực tế."},
+  {name:"OTP", num:"VNPAY", scam:false,
+   text:"Ma OTP cua ban la 884213. Khong chia se ma nay cho bat ky ai, ke ca nhan vien ngan hang.",
+   why:"Đây là tin OTP hợp lệ bạn tự yêu cầu khi thanh toán. Bản thân tin không nguy hiểm; nguy hiểm là khi bạn ĐƯA mã cho người khác."},
+  {name:"Bạn thân Linh", num:"Danh bạ", scam:true,
+   text:"Tao kẹt tiền quá, chuyển gấp cho tao 5 triệu vào STK 0123456789 nhé, mai tao trả. Đang gọi không được.",
+   why:"Dù hiện tên người quen, tài khoản có thể bị hack. Xin tiền gấp + không gọi được = phải gọi lại xác minh trước khi chuyển."},
+];
+
+const TOTAL = MESSAGES.length, TIME = 7.0;
+let order=[], idx=0, score=0, lives=3, correct=0, timer=null, timeLeft=TIME, answered=false;
+
+const $=id=>document.getElementById(id);
+const screens={menu:$('menu'),play:$('play'),over:$('over')};
+function show(name){Object.values(screens).forEach(s=>s.classList.remove('active'));screens[name].classList.add('active');}
+
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function startGame(){
+  order=shuffle([...Array(TOTAL).keys()]);
+  idx=0;score=0;lives=3;correct=0;
+  show('play');renderCard();
+}
+
+function renderCard(){
+  answered=false;
+  $('feedback').classList.remove('show');
+  const m=MESSAGES[order[idx]];
+  $('avatar').textContent=m.name.trim()[0].toUpperCase();
+  $('sname').textContent=m.name;
+  $('snum').textContent=m.num;
+  $('mbody').textContent=m.text;
+  $('score').textContent=score;
+  $('progress').textContent=(idx+1)+'/'+TOTAL;
+  $('lives').textContent='❤️'.repeat(lives)+'🖤'.repeat(3-lives);
+  timeLeft=TIME;$('timefill').style.width='100%';
+  clearInterval(timer);
+  timer=setInterval(()=>{
+    timeLeft-=0.1;
+    $('timefill').style.width=Math.max(0,timeLeft/TIME*100)+'%';
+    if(timeLeft<=0){clearInterval(timer);answer(null);}
+  },100);
+}
+
+function answer(choice){
+  if(answered)return;answered=true;clearInterval(timer);
+  const m=MESSAGES[order[idx]];
+  const userSaysScam = choice==='scam';
+  const right = choice!==null && (userSaysScam===m.scam);
+  if(right){score+=Math.max(10,Math.round(timeLeft*10));correct++;}
+  else{lives--;}
+  const v=$('verdict'),w=$('why');
+  if(choice===null){v.textContent='⏱️ Hết giờ!';v.className='verdict bad';}
+  else if(right){v.textContent='✓ Chính xác!';v.className='verdict ok';}
+  else{v.textContent='✗ Sai rồi';v.className='verdict bad';}
+  w.innerHTML=`<b>Đây là tin ${m.scam?'LỪA ĐẢO':'AN TOÀN'}.</b><br>${m.why}`;
+  $('feedback').classList.add('show');
+  $('lives').textContent='❤️'.repeat(Math.max(0,lives))+'🖤'.repeat(3-Math.max(0,lives));
+}
+
+function next(){
+  if(lives<=0){endGame();return;}
+  idx++;
+  if(idx>=TOTAL){endGame();return;}
+  renderCard();
+}
+
+function endGame(){
+  clearInterval(timer);
+  show('over');
+  $('finalScore').textContent=score;
+  $('correctCount').textContent=correct+'/'+(idx+ (answered?1:0));
+  const acc=Math.round(correct/Math.max(1,idx+(answered?1:0))*100);
+  $('accuracy').textContent=acc+'%';
+  let rank,tip;
+  if(acc>=90){rank='🏆 Bậc thầy cảnh giác';tip='Bạn khó bị lừa. Hãy chia sẻ cho bố mẹ và ông bà, họ là nhóm dễ bị nhắm nhất.';}
+  else if(acc>=60){rank='🛡️ Người gác cứng cáp';tip='Khá tốt! Nhớ quy tắc vàng: link lạ + hối thúc gấp + xin tiền hoặc OTP = dừng lại và xác minh.';}
+  else{rank='⚠️ Cần luyện thêm';tip='Nguyên tắc: không bấm link lạ, không đưa OTP, gọi lại số chính thức khi nghi ngờ. Chơi lại để quen các dấu hiệu.';}
+  $('rank').textContent=rank;$('tip').textContent=tip;
+}
+
+$('startBtn').onclick=startGame;
+$('againBtn').onclick=startGame;
+$('homeBtn').onclick=()=>show('menu');
+$('nextBtn').onclick=next;
+document.querySelectorAll('.choices button').forEach(b=>b.onclick=()=>answer(b.dataset.ans));
+</script>
+</body>
+</html>

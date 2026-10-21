@@ -1,0 +1,4 @@
+# Prompt dùng để sinh code game (logic, UI). Dán lại prompt THẬT.
+# Ví dụ:
+Viết một game web 1 file HTML: màn Menu, Play (thẻ tin nhắn + nút An toàn/Lừa đảo + đồng hồ + điểm + mạng), và Game Over. Thuần HTML/CSS/JS.
+Thêm màn feedback hiện sau mỗi lượt, giải thích vì sao tin đó an toàn hay lừa đảo.
